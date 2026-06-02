@@ -1,0 +1,147 @@
+================================================================================
+                    VIRALSCANNER (C++ VERSION) - CORE FUNCTIONS
+================================================================================
+
+APP PURPOSE:
+ViralScanner is a security analysis tool designed to scan C++ code files and
+detect potentially dangerous or unsafe programming patterns before the code is
+executed. It helps C++ programmers identify security vulnerabilities and risky
+code practices specific to the C++ language.
+
+================================================================================
+CORE FUNCTIONS EXPLAINED:
+================================================================================
+
+1. REGEX ANALYZER (RegexAnalyzer Class)
+   ────────────────────────────────────
+   Purpose: Scans C++ code for security red flags using pattern matching
+   
+   What it does:
+   • Uses regular expressions to search for dangerous patterns in C++ code
+   • Searches for RISKY INCLUDES: system, exec, popen, fork, socket.h, unistd.h
+     (These headers provide functions that can control the operating system
+      or access network connections, which are security risks)
+   • Searches for UNSAFE FUNCTION CALLS: 
+     - system() - executes shell commands
+     - exec(), execv() - replace current process
+     - popen() - opens pipe to/from command
+     - fork() - creates child process
+     - strcpy() - unsafe string copy (buffer overflow risk)
+     - gets() - unsafe input (buffer overflow risk)
+     - scanf() - unsafe formatted input (buffer overflow risk)
+   • Reports all dangerous patterns found in the code with line numbers
+   • Catches and reports any parsing errors
+   
+   Result: Returns a list of warnings about unsafe C++ code patterns
+
+
+2. PLUGIN MANAGER (PluginManager Class)
+   ────────────────────────────────────
+   Purpose: Allows the scanner to be extended with custom security checks
+   
+   What it does:
+   • Creates and manages a "plugins" folder where custom C++ scanners can be added
+   • Loads Python plugin files from the plugins folder
+   • Each plugin must have a scan() function that analyzes C++ code
+   • Runs each plugin's scan function against the code being analyzed
+   • Falls back to Windows LOCALAPPDATA folder if primary folder creation fails
+   • Reports errors if plugins fail to load or don't have a scan() function
+   
+   Result: Custom C++ security checks can be added without modifying the main app
+
+
+3. SCAN THREAD (ScanThread Class)
+   ──────────────────────────────
+   Purpose: Performs code scanning without freezing the user interface
+   
+   What it does:
+   • Runs the built-in Regex Analyzer scan in the background
+   • Runs all loaded plugins in the background
+   • Sends updates to the UI as it finds issues
+   • Ensures the app stays responsive while scanning
+   
+   Result: User can continue working while scan is running
+
+
+4. MAIN APPLICATION (ViralScanner Class)
+   ─────────────────────────────────────
+   Purpose: The GUI window and main controller of the application
+   
+   Core Features:
+
+   a) CODE EDITOR
+      • Central text area where C++ code is displayed and edited
+      • Font: Consolas, size 10 for easy reading
+      • Used to view and modify C++ files (.cpp, .h, .hpp files)
+
+   b) WORKSPACE TREE (Left Dock)
+      • Shows a folder tree of the currently opened project
+      • Displays all files and folders in a hierarchical structure
+      • Double-click any file to open it in the editor
+      • Automatically expands when a folder is loaded
+
+   c) SCAN OUTPUT (Bottom Dock)
+      • Displays results from code scans
+      • Shows warnings in RED text for unsafe code and risky includes
+      • Shows normal status messages in black text
+      • Provides a log of all security findings with line numbers
+      • Helps identify exactly where vulnerabilities exist in the code
+
+   d) CONTROL PANEL (Right Dock)
+      • SCAN FILE button: Starts a security scan of the current C++ code
+      • OPEN FILE button: Opens a file browser to select a C++ file
+      • TOGGLE THEME button: Switches between light and dark interface
+      • RELOAD PLUGINS button: Refreshes and reloads all custom plugins
+
+   e) FILE MENU
+      • Open option to load C++ files into the editor
+
+   f) THEME SYSTEM
+      • Light Theme: White background with dark text (default)
+      • Dark Theme: Dark background (#1e1e1e) with light text
+      • Helps reduce eye strain in different lighting conditions
+
+
+5. FILE HANDLING
+   ──────────────
+   • Opens C++ files (.cpp, .h, .hpp, etc.) and displays their contents
+   • Reads files with UTF-8 encoding and ignores bad characters
+   • Automatically populates the workspace tree from the file's folder
+   • Tracks the current file path for reference
+   • Allows browsing and opening multiple files from project folder
+
+
+================================================================================
+WORKFLOW SUMMARY:
+================================================================================
+
+1. User opens a C++ file → File loads into editor & folder tree builds
+2. User clicks SCAN FILE → C++ code is analyzed in the background
+3. Regex Analyzer searches for dangerous includes and unsafe functions
+4. All loaded plugins also scan the code for custom security patterns
+5. Results appear in the output window with risky findings highlighted in RED
+6. User can see exact line numbers where issues are found
+7. User can modify code and scan again as needed
+8. Custom plugins can be added to extend functionality for additional C++ checks
+
+================================================================================
+SECURITY CHECKS PERFORMED:
+================================================================================
+
+RISKY INCLUDES DETECTED:
+• system.h, system - system calls
+• exec.h, exec - process execution
+• unistd.h - Unix system calls
+• socket.h - network socket operations
+• popen - pipe operations
+
+UNSAFE FUNCTIONS DETECTED:
+• system() - Execute shell commands
+• exec() / execv() - Replace process image
+• popen() - Create pipe to command
+• fork() - Create child process
+• strcpy() - Unsafe string copy (buffer overflow risk)
+• gets() - Read string without bounds checking (buffer overflow risk)
+• scanf() - Formatted input without bounds checking (buffer overflow risk)
+
+================================================================================
